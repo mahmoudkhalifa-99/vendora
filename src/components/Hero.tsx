@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { BadgeCheck, MessageCircle, ShoppingCart, Truck } from 'lucide-react';
-import { STORE } from '../config';
 
 const STEPS = [
   { icon: ShoppingCart, title: 'اختار القطع', text: 'تصفّح الأقسام وأضف اللي محتاجه للسلة.' },
@@ -48,7 +47,6 @@ export function Hero() {
             <a href="#catalog" className="rounded-xl bg-flame-600 px-6 py-3 font-bold shadow-lg hover:bg-flame-700">تصفّح القطع</a>
             <a href="#custom" className="rounded-xl border border-white/20 px-6 py-3 font-bold hover:bg-white/10">مش لاقي القطعة؟ اطلبها</a>
           </div>
-          <p className="mt-4 text-sm text-slate-400">للاستفسار: <a dir="ltr" href={`tel:${STORE.phoneLocal}`} className="font-bold text-white">{STORE.phoneDisplay}</a></p>
         </div>
 
         <ol className="mt-10 grid gap-3 sm:grid-cols-3">

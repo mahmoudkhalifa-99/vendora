@@ -1,4 +1,4 @@
-import { MapPin, MessageCircle, Phone } from 'lucide-react';
+import { MapPin, MessageCircle } from 'lucide-react';
 import { STORE } from '../config';
 import { waLink } from '../lib/whatsapp';
 
@@ -14,7 +14,6 @@ export function Footer() {
         </div>
         <div className="space-y-2 text-sm">
           <h3 className="font-bold text-white">تواصل معنا</h3>
-          <a href={`tel:${STORE.phoneLocal}`} className="flex items-center gap-2 hover:text-white"><Phone className="h-4 w-4 text-flame-400" aria-hidden /><span dir="ltr">{STORE.phoneDisplay}</span></a>
           <a href={waLink('السلام عليكم، عايز أستفسر عن قطع غيار الغلايات.')} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white"><MessageCircle className="h-4 w-4 text-wa" aria-hidden />واتساب</a>
           <p className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-flame-400" aria-hidden />{STORE.address}</p>
         </div>

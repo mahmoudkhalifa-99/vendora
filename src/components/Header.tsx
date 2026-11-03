@@ -1,5 +1,6 @@
-import { Phone, Search, ShoppingCart } from 'lucide-react';
+import { MessageCircle, Search, ShoppingCart } from 'lucide-react';
 import { STORE } from '../config';
+import { waLink } from '../lib/whatsapp';
 
 export function Header({
   query,
@@ -36,9 +37,14 @@ export function Header({
           />
         </div>
 
-        <a href={`tel:${STORE.phoneLocal}`} className="hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10 lg:flex">
-          <Phone className="h-4 w-4 text-flame-400" aria-hidden />
-          <span dir="ltr">{STORE.phoneDisplay}</span>
+        <a
+          href={waLink('السلام عليكم، عايز أستفسر عن قطع غيار الغلايات.')}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="تواصل معنا على واتساب"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-wa hover:bg-white/10"
+        >
+          <MessageCircle className="h-6 w-6" aria-hidden />
         </a>
 
         <button
