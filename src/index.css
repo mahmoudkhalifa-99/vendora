@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Cairo', ui-sans-serif, system-ui, sans-serif;
+  --color-navy-950: #07131f;
+  --color-navy-900: #0b1f33;
+  --color-navy-800: #12304d;
+  --color-navy-700: #1b4468;
+  --color-flame-400: #fb923c;
+  --color-flame-500: #f97316;
+  --color-flame-600: #ea580c;
+  --color-flame-700: #c2410c;
+  --color-wa: #25d366;
+  --color-wa-dark: #128c4a;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: #f4f6f9;
+    color: #1e293b;
+    font-family: var(--font-sans);
+  }
+  :focus-visible { outline: 2px solid var(--color-flame-500); outline-offset: 2px; border-radius: 6px; }
+  button { cursor: pointer; }
+  input[type='number']::-webkit-inner-spin-button { display: none; }
+}
+
+@keyframes slide-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+.anim-slide { animation: slide-in .28s cubic-bezier(.2,.8,.2,1); }
+.anim-fade { animation: fade-in .2s ease-out; }
+.anim-pop { animation: pop .22s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+.blueprint { position: relative; isolation: isolate; }
+.blueprint::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
