@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { BadgeCheck, MessageCircle, ShoppingCart, Truck } from 'lucide-react';
 import { STORE } from '../config';
 
@@ -7,14 +8,34 @@ const STEPS = [
   { icon: MessageCircle, title: 'إتمام الشراء', text: 'الطلب كامل يوصلنا على واتساب ونؤكد السعر والتوفر.' },
 ];
 
+// دخول الإدارة المخفي: 3 ضغطات على أيقونة الشاحنة خلال ثانيتين
+const ADMIN_TAPS = 3;
+const ADMIN_TAP_WINDOW_MS = 2000;
+
 export function Hero() {
+  const taps = useRef({ count: 0, last: 0 });
+
+  const onTruckTap = () => {
+    const now = Date.now();
+    const t = taps.current;
+    t.count = now - t.last > ADMIN_TAP_WINDOW_MS ? 1 : t.count + 1;
+    t.last = now;
+    if (t.count >= ADMIN_TAPS) {
+      t.count = 0;
+      window.location.hash = '#/admin';
+    }
+  };
+
   return (
     <section id="top" className="blueprint relative overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-navy-800 text-white">
       <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-flame-500/20 blur-3xl" aria-hidden />
       <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-flame-400">
-            <Truck className="h-3.5 w-3.5" aria-hidden /> توريد لجميع المصانع والمناطق الصناعية
+            <span onClick={onTruckTap} className="-m-1.5 cursor-default select-none p-1.5">
+              <Truck className="h-3.5 w-3.5" aria-hidden />
+            </span>{' '}
+            توريد لجميع المصانع والمناطق الصناعية
           </span>
           <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-5xl">
             قطع غيار الغلايات البخارية

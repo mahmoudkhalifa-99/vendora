@@ -28,7 +28,6 @@ export function Footer() {
       </div>
       <div className="flex items-center justify-center gap-4 border-t border-white/10 py-4 text-xs text-slate-500">
         <span>© {new Date().getFullYear()} {STORE.name}. جميع الحقوق محفوظة.</span>
-        <a href="#/admin" className="hover:text-slate-300">دخول الإدارة</a>
       </div>
     </footer>
   );
