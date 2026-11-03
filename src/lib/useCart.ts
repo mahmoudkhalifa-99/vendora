@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CartLine, CustomerInfo } from '../types';
 
 const CART_KEY = 'boiler-cart-v1';
-const CUSTOMER_KEY = 'boiler-customer-v1';
+const OLD_CUSTOMER_KEY = 'boiler-customer-v1';
 const MAX_QTY = 9999;
 
 function load<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = sessionStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
@@ -15,7 +15,7 @@ function load<T>(key: string, fallback: T): T {
 }
 function save(key: string, value: unknown) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    sessionStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* التخزين غير متاح – الموقع يشتغل عادي */
   }
@@ -27,14 +27,21 @@ export function useCart() {
   const [lines, setLines] = useState<CartLine[]>(() =>
     load<CartLine[]>(CART_KEY, []).filter((l) => typeof l.id === 'string' && Number.isFinite(l.qty) && l.qty > 0),
   );
-  const [customer, setCustomer] = useState<CustomerInfo>(() => ({
-    ...EMPTY_CUSTOMER,
-    ...load<Partial<CustomerInfo>>(CUSTOMER_KEY, {}),
-    notes: '',
-  }));
+  // بيانات العميل في الذاكرة بس (مش بتتحفظ في المتصفح) عشان أي مستخدم على نفس الجهاز ما يشوفش بيانات اللي قبله
+  const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER);
+
+  // تنظيف البيانات القديمة المحفوظة من النسخ السابقة
+  useEffect(() => {
+    try {
+      // تنظيف أي بيانات قديمة محفوظة من النسخ السابقة (عميل + سلة)
+      localStorage.removeItem(OLD_CUSTOMER_KEY);
+      localStorage.removeItem(CART_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => save(CART_KEY, lines), [lines]);
-  useEffect(() => save(CUSTOMER_KEY, { ...customer, notes: '' }), [customer]);
 
   const clamp = (q: number) => Math.min(MAX_QTY, Math.max(0, Math.floor(q) || 0));
 

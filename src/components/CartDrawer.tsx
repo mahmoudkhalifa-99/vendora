@@ -1,5 +1,6 @@
 import { MessageCircle, ShoppingCart, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { EMPTY_CUSTOMER } from '../lib/useCart';
 import { STORE } from '../config';
 import { fmt } from '../lib/format';
 import { reserveOrderNumber } from '../lib/orderNumber';
@@ -24,7 +25,7 @@ const inputCls =
 
 export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRemove, onClear, onClose }: Props) {
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
-  const [sent, setSent] = useState(false);
+  const [sentUrl, setSentUrl] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   // نفس الرقم يتستخدم لو العميل ضغط إتمام الشراء أكتر من مرة لنفس السلة
   const orderNo = useRef<string | null>(null);
@@ -49,7 +50,7 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
     const next: typeof errors = {};
     if (customer.name.trim().length < 2) next.name = 'من فضلك اكتب اسمك';
     const digits = customer.phone.replace(/\D/g, '');
-    if (customer.phone.trim() && digits.length < 8) next.phone = 'رقم الموبايل غير صحيح';
+    if (digits.length < 8) next.phone = 'اكتب رقم موبايل صحيح';
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -62,7 +63,11 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
     const url = waLink(buildOrderMessage(lines, products, customer, orderNo.current));
     if (w) w.location.href = url;
     else window.location.href = url;
-    setSent(true);
+    // الطلب اتبعت: نفرّغ السلة وبيانات العميل فورًا عشان ما تظهرش لأي شخص تاني على نفس الجهاز
+    setSentUrl(url);
+    orderNo.current = null;
+    onClear();
+    onCustomer(EMPTY_CUSTOMER);
   };
 
   return (
@@ -84,7 +89,17 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
           </button>
         </div>
 
-        {lines.length === 0 ? (
+        {lines.length === 0 && sentUrl ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+            <span className="grid h-20 w-20 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+              <MessageCircle className="h-9 w-9" aria-hidden />
+            </span>
+            <h3 className="text-lg font-bold text-slate-800">تم تجهيز طلبك</h3>
+            <p className="text-sm text-slate-500">اضغط إرسال في واتساب لإتمام الطلب. السلة وبياناتك اتمسحوا من الجهاز.</p>
+            <a href={sentUrl} target="_blank" rel="noopener noreferrer" className="mt-2 rounded-xl bg-wa-dark px-6 py-3 font-bold text-white hover:brightness-110">لو واتساب ما فتحش اضغط هنا</a>
+            <button type="button" onClick={onClose} className="text-sm font-semibold text-slate-500 underline">إغلاق</button>
+          </div>
+        ) : lines.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
             <span className="grid h-20 w-20 place-items-center rounded-full bg-slate-200 text-slate-400">
               <ShoppingCart className="h-9 w-9" aria-hidden />
@@ -130,23 +145,21 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
                 <h3 className="font-extrabold text-navy-900">بيانات العميل</h3>
                 <div>
                   <label htmlFor="c-name" className="mb-1 block text-xs font-bold text-slate-600">الاسم *</label>
-                  <input id="c-name" className={inputCls} value={customer.name} onChange={set('name')} autoComplete="name" aria-invalid={!!errors.name} />
+                  <input id="c-name" className={inputCls} value={customer.name} onChange={set('name')} autoComplete="off" aria-invalid={!!errors.name} />
                   {errors.name && <p role="alert" className="mt-1 text-xs font-semibold text-red-600">{errors.name}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="c-phone" className="mb-1 block text-xs font-bold text-slate-600">الموبايل</label>
-                    <input id="c-phone" dir="ltr" inputMode="tel" className={`${inputCls} text-end`} value={customer.phone} onChange={set('phone')} autoComplete="tel" aria-invalid={!!errors.phone} />
-                    {errors.phone && <p role="alert" className="mt-1 text-xs font-semibold text-red-600">{errors.phone}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="c-company" className="mb-1 block text-xs font-bold text-slate-600">الشركة / المصنع</label>
-                    <input id="c-company" className={inputCls} value={customer.company} onChange={set('company')} autoComplete="organization" />
-                  </div>
+                <div>
+                  <label htmlFor="c-phone" className="mb-1 block text-xs font-bold text-slate-600">الموبايل *</label>
+                  <input id="c-phone" dir="ltr" inputMode="tel" className={`${inputCls} text-end`} value={customer.phone} onChange={set('phone')} autoComplete="off" aria-invalid={!!errors.phone} />
+                  {errors.phone && <p role="alert" className="mt-1 text-xs font-semibold text-red-600">{errors.phone}</p>}
+                </div>
+                <div>
+                  <label htmlFor="c-company" className="mb-1 block text-xs font-bold text-slate-600">الشركة / المصنع</label>
+                  <input id="c-company" className={inputCls} value={customer.company} onChange={set('company')} autoComplete="off" />
                 </div>
                 <div>
                   <label htmlFor="c-city" className="mb-1 block text-xs font-bold text-slate-600">المدينة / عنوان التسليم</label>
-                  <input id="c-city" className={inputCls} value={customer.city} onChange={set('city')} autoComplete="address-level2" />
+                  <input id="c-city" className={inputCls} value={customer.city} onChange={set('city')} autoComplete="off" />
                 </div>
                 <div>
                   <label htmlFor="c-notes" className="mb-1 block text-xs font-bold text-slate-600">ملاحظات (موديل الغلاية، مواصفات...)</label>
@@ -156,12 +169,6 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
             </div>
 
             <div className="border-t border-slate-200 bg-white p-4">
-              {sent && (
-                <div role="status" className="mb-3 rounded-xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-800">
-                  تم فتح واتساب بالطلب كامل. لو لم يفتح اضغط إتمام الشراء مرة أخرى.
-                  <button type="button" onClick={() => { onClear(); setSent(false); orderNo.current = null; onClose(); }} className="mr-1 font-bold underline">بعد إرسال الرسالة، فرّغ السلة</button>
-                </div>
-              )}
               <div className="mb-3 flex items-baseline justify-between">
                 <span className="font-semibold text-slate-600">الإجمالي التقريبي</span>
                 <span className="text-2xl font-extrabold tabular-nums text-navy-900">{fmt(total)} <span className="text-sm">{STORE.currency}</span></span>

@@ -10,7 +10,7 @@ export const STORE = {
   whatsappNumber: '201065019364',
   phoneDisplay: '0106 501 9364',
   phoneLocal: '01065019364',
-  address: 'المنوفيه - مصر',
+  address: 'المنوفيه- مصر',
   currency: 'جنيه',
 };
 
