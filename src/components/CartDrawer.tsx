@@ -1,7 +1,8 @@
 import { MessageCircle, ShoppingCart, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { STORE } from '../config';
 import { fmt } from '../lib/format';
+import { reserveOrderNumber } from '../lib/orderNumber';
 import { buildOrderMessage, cartTotal, waLink } from '../lib/whatsapp';
 import type { CartLine, CustomerInfo, Product } from '../types';
 import { ProductImage } from './ProductImage';
@@ -24,6 +25,9 @@ const inputCls =
 export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRemove, onClear, onClose }: Props) {
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  // نفس الرقم يتستخدم لو العميل ضغط إتمام الشراء أكتر من مرة لنفس السلة
+  const orderNo = useRef<string | null>(null);
   const total = cartTotal(lines, products);
 
   useEffect(() => {
@@ -40,7 +44,8 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
   const set = (k: keyof CustomerInfo) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     onCustomer({ ...customer, [k]: e.target.value });
 
-  const checkout = () => {
+  const checkout = async () => {
+    if (sending) return;
     const next: typeof errors = {};
     if (customer.name.trim().length < 2) next.name = 'من فضلك اكتب اسمك';
     const digits = customer.phone.replace(/\D/g, '');
@@ -48,9 +53,15 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
     setErrors(next);
     if (Object.keys(next).length) return;
 
-    const url = waLink(buildOrderMessage(lines, products, customer));
-    const w = window.open(url, '_blank', 'noopener');
-    if (!w) window.location.href = url;
+    // نفتح التبويب فورًا (قبل الانتظار) عشان المتصفح ما يحجبوش كنافذة منبثقة
+    const w = window.open('', '_blank');
+    setSending(true);
+    if (!orderNo.current) orderNo.current = await reserveOrderNumber();
+    setSending(false);
+
+    const url = waLink(buildOrderMessage(lines, products, customer, orderNo.current));
+    if (w) w.location.href = url;
+    else window.location.href = url;
     setSent(true);
   };
 
@@ -148,7 +159,7 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
               {sent && (
                 <div role="status" className="mb-3 rounded-xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-800">
                   تم فتح واتساب بالطلب كامل. لو لم يفتح اضغط إتمام الشراء مرة أخرى.
-                  <button type="button" onClick={() => { onClear(); setSent(false); onClose(); }} className="mr-1 font-bold underline">بعد إرسال الرسالة، فرّغ السلة</button>
+                  <button type="button" onClick={() => { onClear(); setSent(false); orderNo.current = null; onClose(); }} className="mr-1 font-bold underline">بعد إرسال الرسالة، فرّغ السلة</button>
                 </div>
               )}
               <div className="mb-3 flex items-baseline justify-between">
@@ -158,9 +169,10 @@ export function CartDrawer({ lines, products, customer, onCustomer, onQty, onRem
               <button
                 type="button"
                 onClick={checkout}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-wa-dark text-lg font-extrabold text-white shadow-lg transition hover:brightness-110"
+                disabled={sending}
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-wa-dark text-lg font-extrabold text-white shadow-lg transition hover:brightness-110 disabled:opacity-70"
               >
-                <MessageCircle className="h-6 w-6" aria-hidden /> إتمام الشراء عبر واتساب
+                <MessageCircle className="h-6 w-6" aria-hidden /> {sending ? 'جاري التجهيز...' : 'إتمام الشراء عبر واتساب'}
               </button>
               <p className="mt-2 text-center text-[11px] leading-relaxed text-slate-500">
                 الأسعار استرشادية، ويتم تأكيد السعر النهائي والتوفر وموعد التسليم معك على واتساب.

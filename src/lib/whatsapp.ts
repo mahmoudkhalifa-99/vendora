@@ -15,9 +15,13 @@ export function buildOrderMessage(
   lines: CartLine[],
   products: Map<string, Product>,
   customer: CustomerInfo,
+  orderNo?: string | null,
 ): string {
+  // لو تعذّر حجز رقم من العدّاد نستخدم رقم مؤقت من التاريخ والوقت
   const now = new Date();
-  const ref = `${now.getFullYear().toString().slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+  const ref =
+    orderNo ??
+    `${now.getFullYear().toString().slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
 
   const items = lines
     .map((l, i) => {
