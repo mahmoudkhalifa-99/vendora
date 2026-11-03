@@ -1,4 +1,4 @@
-import { Flame, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { MapPin, MessageCircle, Phone } from 'lucide-react';
 import { STORE } from '../config';
 import { waLink } from '../lib/whatsapp';
 
@@ -7,10 +7,9 @@ export function Footer() {
     <footer className="bg-navy-950 text-slate-300">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2.5 text-white">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-flame-500"><Flame className="h-6 w-6" aria-hidden /></span>
-            <span className="font-extrabold">{STORE.name}</span>
-          </div>
+          <span className="inline-block rounded-xl bg-white px-3 py-2">
+            <img src={STORE.logo} alt={STORE.name} className="h-12 w-auto" />
+          </span>
           <p className="mt-3 text-sm leading-relaxed">{STORE.tagline}. توريد قطع غيار أصلية للمصانع والمنشآت الصناعية.</p>
         </div>
         <div className="space-y-2 text-sm">

@@ -1,4 +1,4 @@
-import { Flame, Phone, Search, ShoppingCart } from 'lucide-react';
+import { Phone, Search, ShoppingCart } from 'lucide-react';
 import { STORE } from '../config';
 
 export function Header({
@@ -16,12 +16,8 @@ export function Header({
     <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-900 text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-6">
         <a href="#top" className="flex shrink-0 items-center gap-2.5" aria-label={STORE.name}>
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-flame-500 shadow-inner">
-            <Flame className="h-6 w-6 text-white" aria-hidden />
-          </span>
-          <span className="hidden leading-tight sm:block">
-            <span className="block text-base font-extrabold">{STORE.name}</span>
-            <span className="block text-[11px] text-slate-300">{STORE.tagline}</span>
+          <span className="grid place-items-center rounded-xl bg-white px-2.5 py-1 shadow-inner">
+            <img src={STORE.logo} alt={STORE.name} width={104} height={56} className="h-11 w-auto sm:h-14" />
           </span>
         </a>
 

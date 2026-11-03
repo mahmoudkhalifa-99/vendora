@@ -2,8 +2,10 @@ import type { CategoryId } from './types';
 
 /** عدّل البيانات دي بس لتغيير هوية الموقع. */
 export const STORE = {
-  name: 'المصرية الهندسية',
+  name: 'Vendora',
   tagline: 'قطع غيار ومهمات الغلايات البخارية',
+  logo: '/logo.png',
+  icon: '/icon.png',
   /** رقم الواتساب بالصيغة الدولية بدون + أو أصفار (01065019364 → 201065019364) */
   whatsappNumber: '201065019364',
   phoneDisplay: '0106 501 9364',
