@@ -1,5 +1,5 @@
 import { MessageCircle, PackageSearch, ShoppingCart } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CartDrawer } from './components/CartDrawer';
 import { CategoryIcon } from './components/CategoryIcon';
 import { CustomRequest } from './components/CustomRequest';
@@ -9,7 +9,7 @@ import { Hero } from './components/Hero';
 import { ProductCard } from './components/ProductCard';
 import { ProductModal } from './components/ProductModal';
 import { CATEGORIES, STORE } from './config';
-import { PRODUCTS } from './data/products';
+import { useProducts } from './lib/useProducts';
 import { fmt, normalize } from './lib/format';
 import { cartTotal } from './lib/whatsapp';
 import { useCart } from './lib/useCart';
@@ -17,12 +17,15 @@ import type { CategoryId } from './types';
 
 type Sort = 'default' | 'price-asc' | 'price-desc';
 
-const PRODUCT_MAP = new Map(PRODUCTS.map((p) => [p.id, p]));
-const VALID_IDS = new Set(PRODUCT_MAP.keys());
-const BRANDS = [...new Set(PRODUCTS.map((p) => p.brand).filter(Boolean))].sort() as string[];
-
 export default function App() {
-  const cart = useCart(VALID_IDS);
+  const { products: PRODUCTS, loading } = useProducts();
+  const PRODUCT_MAP = useMemo(() => new Map(PRODUCTS.map((p) => [p.id, p])), [PRODUCTS]);
+  const BRANDS = useMemo(() => [...new Set(PRODUCTS.map((p) => p.brand).filter(Boolean))].sort() as string[], [PRODUCTS]);
+  const cart = useCart();
+  const { prune } = cart;
+  useEffect(() => {
+    if (!loading) prune(new Set(PRODUCT_MAP.keys()));
+  }, [loading, PRODUCT_MAP, prune]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<CategoryId | 'all'>('all');
   const [brand, setBrand] = useState('');
@@ -41,7 +44,7 @@ export default function App() {
     if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [query, category, brand, sort]);
+  }, [PRODUCTS, query, category, brand, sort]);
 
   const qtyInCart = (id: string) => cart.lines.find((l) => l.id === id)?.qty ?? 0;
   const openProduct = openId ? PRODUCT_MAP.get(openId) : undefined;
@@ -86,7 +89,13 @@ export default function App() {
             {filtersActive && <button type="button" onClick={reset} className="text-sm font-bold text-flame-700 underline">مسح الفلاتر</button>}
           </div>
 
-          {results.length === 0 ? (
+          {loading ? (
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="جاري تحميل القطع">
+              {Array.from({ length: 8 }, (_, i) => (
+                <div key={i} className="h-80 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+              ))}
+            </div>
+          ) : results.length === 0 ? (
             <div className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
               <PackageSearch className="mx-auto h-12 w-12 text-slate-400" aria-hidden />
               <h3 className="mt-3 text-lg font-bold">مفيش نتائج مطابقة</h3>

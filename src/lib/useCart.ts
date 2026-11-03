@@ -23,11 +23,9 @@ function save(key: string, value: unknown) {
 
 export const EMPTY_CUSTOMER: CustomerInfo = { name: '', phone: '', company: '', city: '', notes: '' };
 
-export function useCart(validIds: Set<string>) {
+export function useCart() {
   const [lines, setLines] = useState<CartLine[]>(() =>
-    load<CartLine[]>(CART_KEY, []).filter(
-      (l) => validIds.has(l.id) && Number.isFinite(l.qty) && l.qty > 0,
-    ),
+    load<CartLine[]>(CART_KEY, []).filter((l) => typeof l.id === 'string' && Number.isFinite(l.qty) && l.qty > 0),
   );
   const [customer, setCustomer] = useState<CustomerInfo>(() => ({
     ...EMPTY_CUSTOMER,
@@ -55,8 +53,13 @@ export function useCart(validIds: Set<string>) {
 
   const remove = useCallback((id: string) => setLines((p) => p.filter((l) => l.id !== id)), []);
   const clear = useCallback(() => setLines([]), []);
+  /** يشيل من السلة أي قطعة اتحذفت أو اتخفت من الكتالوج */
+  const prune = useCallback(
+    (validIds: Set<string>) => setLines((p) => (p.every((l) => validIds.has(l.id)) ? p : p.filter((l) => validIds.has(l.id)))),
+    [],
+  );
 
   const count = useMemo(() => lines.reduce((s, l) => s + l.qty, 0), [lines]);
 
-  return { lines, add, setQty, remove, clear, count, customer, setCustomer };
+  return { lines, add, setQty, remove, clear, prune, count, customer, setCustomer };
 }

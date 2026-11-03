@@ -14,8 +14,12 @@ export interface Product {
   boilerCompatibility?: string;
   originCountry?: string;
   technicalNotes?: string;
-  /** رابط صورة حقيقية للمنتج (اختياري). لو فاضي بتظهر أيقونة القسم. */
-  image?: string;
+  /** صور المنتج (روابط أو data URL). الأولى هي الرئيسية. لو فاضية بتظهر أيقونة القسم. */
+  images?: string[];
+  /** false = مخفي عن الزوار */
+  active?: boolean;
+  /** ترتيب العرض (الأصغر أولاً) */
+  sortIndex?: number;
 }
 
 export type CategoryId =

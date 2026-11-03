@@ -26,7 +26,10 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs text-slate-500">© {new Date().getFullYear()} {STORE.name}. جميع الحقوق محفوظة.</div>
+      <div className="flex items-center justify-center gap-4 border-t border-white/10 py-4 text-xs text-slate-500">
+        <span>© {new Date().getFullYear()} {STORE.name}. جميع الحقوق محفوظة.</span>
+        <a href="#/admin" className="hover:text-slate-300">دخول الإدارة</a>
+      </div>
     </footer>
   );
 }

@@ -1,0 +1,25 @@
+// ⚠️ مشروع Firebase ده ممكن يكون فيه تطبيقات تانية.
+// ما تستبدلش القواعد الحالية كلها: ضيف الجزء ده جوه قواعدك الحالية
+// (جوه match /databases/{database}/documents) أو حطه لو مفيش قواعد.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // حط إيميل الأدمن هنا (بحروف صغيرة). تقدر تضيف أكتر من إيميل.
+    function isVendoraAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['mahmoudkhalifa.kh91@gmail.com'];
+    }
+
+    // القراءة للزوار، والكتابة للأدمن فقط
+    match /vendora_products/{id} {
+      allow read: if true;
+      allow write: if isVendoraAdmin();
+    }
+    match /vendora_settings/{id} {
+      allow read: if true;
+      allow write: if isVendoraAdmin();
+    }
+  }
+}

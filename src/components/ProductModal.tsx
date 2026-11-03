@@ -17,6 +17,8 @@ export function ProductModal({
   onAdd: (qty: number) => void;
 }) {
   const [qty, setQty] = useState(1);
+  const [img, setImg] = useState(0);
+  const gallery = product.images ?? [];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -49,8 +51,26 @@ export function ProductModal({
           <X className="h-5 w-5" />
         </button>
 
-        <div className="h-52 shrink-0 md:h-auto md:w-2/5">
-          <ProductImage product={product} large />
+        <div className="flex shrink-0 flex-col md:w-2/5">
+          <div className="h-52 md:h-auto md:flex-1">
+            <ProductImage product={product} large index={img} />
+          </div>
+          {gallery.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto bg-slate-100 p-2">
+              {gallery.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setImg(i)}
+                  aria-label={`صورة ${i + 1}`}
+                  aria-current={i === img}
+                  className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 ${i === img ? 'border-flame-600' : 'border-transparent opacity-70'}`}
+                >
+                  <ProductImage product={product} index={i} />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 sm:p-7">

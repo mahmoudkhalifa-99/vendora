@@ -3,16 +3,18 @@ import type { Product } from '../types';
 import { CategoryIcon } from './CategoryIcon';
 
 /** صورة المنتج لو موجودة، وإلا لوحة هندسية بأيقونة القسم واسم الماركة */
-export function ProductImage({ product, large = false }: { product: Product; large?: boolean }) {
+export function ProductImage({ product, large = false, index = 0 }: { product: Product; large?: boolean; index?: number }) {
   const [failed, setFailed] = useState(false);
-  if (product.image && !failed) {
+  const src = product.images?.[index];
+  if (src && !failed) {
     return (
       <img
-        src={product.image}
+        key={src}
+        src={src}
         alt={product.nameAr}
         loading="lazy"
         onError={() => setFailed(true)}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover" 
       />
     );
   }
