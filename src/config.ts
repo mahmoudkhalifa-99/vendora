@@ -10,7 +10,7 @@ export const STORE = {
   whatsappNumber: '201065019364',
   phoneDisplay: '0106 501 9364',
   phoneLocal: '01065019364',
-  address: 'المنطقة الصناعية، العاشر من رمضان / السادس من أكتوبر',
+  address: 'مصر',
   currency: 'جنيه',
 };
 
